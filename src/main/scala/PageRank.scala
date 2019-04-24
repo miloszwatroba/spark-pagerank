@@ -4,7 +4,8 @@ object PageRank {
   def main(args: Array[String]) {
     val inputPath = args(0)
     val iterations = args(1).toInt
-    val printTopNumber = args(2).toInt
+    val saveTopNumber = args(2).toInt
+    val outputPath = args(3)
 
     val spark = SparkSession
       .builder
@@ -37,11 +38,9 @@ object PageRank {
         .mapValues(0.15 + 0.85 * _)
     }
 
-    ranks
-      .collect()
-      .sortBy(_._2)(Ordering[Double].reverse)
-      .take(printTopNumber)
-      .foreach(t => println(s"Page: ${t._1}, Rank: ${t._2}"))
+    val output = ranks.takeOrdered(saveTopNumber)(Ordering[Double].reverse.on(_._2))
+    spark.sparkContext.parallelize(output).saveAsTextFile(outputPath)
+    output.foreach(t => println(s"Page: ${t._1}, Rank: ${t._2}"))
 
     spark.stop()
   }
