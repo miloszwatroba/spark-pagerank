@@ -13,5 +13,11 @@ sbt package
     3. Number of top ranks to print
     4. Output path
 
-
+### Example usage
+```
+/bin/spark-submit \
+--master spark://spark-master:7077 \
+--class PageRank \
+/path/to/jarfile.jar /path/to/data.txt 10 10 path/to/output.txt
+```
 
